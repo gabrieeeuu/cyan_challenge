@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.container, .container-fluid {
+  margin-top: 20px;
+}
+
+#containerNav {
+  margin-top: 0;
+}
+
+.container-fluid>h3 {
+  margin-top: .5rem;
+}
+
+.container-fluid>.btn{
+  margin-right: .3rem;
+}

@@ -42,4 +42,8 @@ public class MillService {
     public List<Mill> findAllMills(){
         return millDAO.findAll();
     }
+
+    public void deleteMill(String name){
+        millDAO.deleteByName(name);
+    }
 }

@@ -14,4 +14,6 @@ public interface MillDAO extends JpaRepository<Mill, String> {
     Mill findByName (String name);
 
     List<Mill> findAll();
+
+    void deleteByName(String name);
 }

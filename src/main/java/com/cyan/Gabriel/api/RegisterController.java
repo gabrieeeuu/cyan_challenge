@@ -5,11 +5,12 @@ import com.cyan.Gabriel.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/v1/register")
+@RequestMapping("/api")
 @RestController
 public class RegisterController {
 
@@ -40,7 +41,7 @@ public class RegisterController {
         return new ResponseEntity<Mill>(newMill, HttpStatus.CREATED);
     }
 
-    @PutMapping(value="/mill/harvest/{name}/{code}")
+    @PutMapping(value="/mill/harv/{name}/{code}")
     @ResponseBody
     public ResponseEntity<Mill> addHarvestToMill(@PathVariable("name") String millName, @PathVariable("code") String harvestCode){
 
@@ -57,14 +58,33 @@ public class RegisterController {
         return new ResponseEntity<Mill>(newMill, HttpStatus.OK);
     }
 
-    @GetMapping(value="/mill/all")
+    @GetMapping(value="/mills")
     @ResponseBody
     public ResponseEntity<List<Mill>> getAllMill(){
         List<Mill> mills = millService.findAllMills();
         return new ResponseEntity<List<Mill>>(mills, HttpStatus.OK);
     }
 
-    @PostMapping(value="/harvest")
+    @GetMapping(value="/mill/{name}")
+    @ResponseBody
+    public ResponseEntity<Mill> findMillByName(@PathVariable("name") String name){
+
+        Mill newMill = millService.findByName(name);
+
+        if (newMill == null){
+            throw new InternalError ("Something went wrong. Mill is Null.");
+        }
+
+        return new ResponseEntity<Mill>(newMill, HttpStatus.FOUND);
+    }
+
+    @DeleteMapping(value="/mill/{name}")
+    @Transactional
+    public void deleteMill(@PathVariable("name") String name){
+        millService.deleteMill(name);
+    }
+
+    @PostMapping(value="/harv")
     @ResponseBody
     public ResponseEntity<Harvest> registerHarvest(@RequestBody Harvest harvest){
 
@@ -76,7 +96,7 @@ public class RegisterController {
         return new ResponseEntity<Harvest>(newHarvest, HttpStatus.CREATED);
     }
 
-    @PutMapping(value="/harvest/farm/{codeh}/{codef}")
+    @PutMapping(value="/harv/farm/{codeh}/{codef}")
     @ResponseBody
     public ResponseEntity<Harvest> addFarmToHarvest(@PathVariable("codeh") String codeh, @PathVariable("codef") String condef){
 
@@ -93,7 +113,7 @@ public class RegisterController {
 
     }
 
-    @GetMapping(value="/harvest/all")
+    @GetMapping(value="/harvs")
     @ResponseBody
     public ResponseEntity<List<Harvest>> getAllHarvest(){
         List<Harvest> harvests = harvestService.findAllHarvests();
@@ -128,7 +148,7 @@ public class RegisterController {
         return new ResponseEntity<Farm>(newFarm, HttpStatus.CREATED);
     }
 
-    @GetMapping(value="/farm/all")
+    @GetMapping(value="/farms")
     @ResponseBody
     public ResponseEntity<List<Farm>> getAllFarm(){
         List<Farm> farms = farmService.findAllFarms();
@@ -147,7 +167,7 @@ public class RegisterController {
         return new ResponseEntity<Field>(newField, HttpStatus.CREATED);
     }
 
-    @GetMapping(value="/field/all")
+    @GetMapping(value="/fields")
     @ResponseBody
     public ResponseEntity<List<Field>> getAllField(){
         List<Field> fields = fieldService.findAllFields();
