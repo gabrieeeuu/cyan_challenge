@@ -8,42 +8,76 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
 import java.util.List;
 
 @RequestMapping("/api")
 @RestController
 public class RegisterController {
 
+    private final UserService userService;
     private final MillService millService;
     private final HarvestService harvestService;
     private final FarmService farmService;
     private final FieldService fieldService;
 
+    private TokenFilter tokenFilter = new TokenFilter();
+
     @Autowired
-    public RegisterController(MillService millService, HarvestService harvestService, FarmService farmService, FieldService fieldService) {
+    public RegisterController(UserService userService, MillService millService, HarvestService harvestService, FarmService farmService, FieldService fieldService) {
+        this.userService = userService;
         this.millService = millService;
         this.harvestService = harvestService;
         this.farmService = farmService;
         this.fieldService = fieldService;
     }
 
+    @PostMapping(value="/user")
+    @ResponseBody
+    public ResponseEntity<User> registerUser(@RequestBody User user){
+
+        User newUser = userService.saveUser(user);
+
+        if (newUser == null){
+            throw new InternalError ("Something went wrong. User is Null.");
+        }
+
+        return new ResponseEntity<User>(newUser, HttpStatus.CREATED);
+    }
+
     @PostMapping(value="/mill")
     @ResponseBody
-    public ResponseEntity<Mill> registerMill(@RequestBody Mill mill) {
+    public ResponseEntity<Mill> registerMill(@RequestBody Mill mill,
+                                             @RequestHeader("Authorization") String token)
+            throws ServletException {
 
+        String userEmail = tokenFilter.getLogin(token);
 
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Mill newMill = millService.saveMill(mill);
 
         if (newMill == null){
             throw new InternalError ("Something went wrong. Mill is Null.");
         }
+
         return new ResponseEntity<Mill>(newMill, HttpStatus.CREATED);
     }
 
     @PutMapping(value="/mill/harv/{name}/{code}")
     @ResponseBody
-    public ResponseEntity<Mill> addHarvestToMill(@PathVariable("name") String millName, @PathVariable("code") String harvestCode){
+    public ResponseEntity<Mill> addHarvestToMill(@PathVariable("name") String millName,
+                                                 @PathVariable("code") String harvestCode,
+                                                 @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Mill mill = millService.findByName(millName);
 
@@ -60,14 +94,30 @@ public class RegisterController {
 
     @GetMapping(value="/mills")
     @ResponseBody
-    public ResponseEntity<List<Mill>> getAllMill(){
+    public ResponseEntity<List<Mill>> getAllMill(@RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
+
         List<Mill> mills = millService.findAllMills();
         return new ResponseEntity<List<Mill>>(mills, HttpStatus.OK);
     }
 
     @GetMapping(value="/mill/{name}")
     @ResponseBody
-    public ResponseEntity<Mill> findMillByName(@PathVariable("name") String name){
+    public ResponseEntity<Mill> findMillByName(@PathVariable("name") String name,
+                                               @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Mill newMill = millService.findByName(name);
 
@@ -80,13 +130,30 @@ public class RegisterController {
 
     @DeleteMapping(value="/mill/{name}")
     @Transactional
-    public void deleteMill(@PathVariable("name") String name){
+    public void deleteMill(@PathVariable("name") String name,
+                           @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
+
         millService.deleteMill(name);
     }
 
     @PostMapping(value="/harv")
     @ResponseBody
-    public ResponseEntity<Harvest> registerHarvest(@RequestBody Harvest harvest){
+    public ResponseEntity<Harvest> registerHarvest(@RequestBody Harvest harvest,
+                                                   @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Harvest newHarvest = harvestService.saveHarvest(harvest);
 
@@ -98,7 +165,16 @@ public class RegisterController {
 
     @PutMapping(value="/harv/farm/{codeh}/{codef}")
     @ResponseBody
-    public ResponseEntity<Harvest> addFarmToHarvest(@PathVariable("codeh") String codeh, @PathVariable("codef") String condef){
+    public ResponseEntity<Harvest> addFarmToHarvest(@PathVariable("codeh") String codeh,
+                                                    @PathVariable("codef") String condef,
+                                                    @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Harvest harvest = harvestService.findByCode(codeh);
 
@@ -115,14 +191,30 @@ public class RegisterController {
 
     @GetMapping(value="/harvs")
     @ResponseBody
-    public ResponseEntity<List<Harvest>> getAllHarvest(){
+    public ResponseEntity<List<Harvest>> getAllHarvest(@RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
+
         List<Harvest> harvests = harvestService.findAllHarvests();
         return new ResponseEntity<List<Harvest>>(harvests, HttpStatus.OK);
     }
 
     @PostMapping(value="/farm")
     @ResponseBody
-    public ResponseEntity<Farm> registerFarm(@RequestBody Farm farm){
+    public ResponseEntity<Farm> registerFarm(@RequestBody Farm farm,
+                                             @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Farm newFarm = farmService.saveFarm(farm);
 
@@ -134,7 +226,16 @@ public class RegisterController {
 
     @PutMapping(value="/farm/field/{codefa}/{codefi}")
     @ResponseBody
-    public ResponseEntity<Farm> addFieldToFarm(@PathVariable("codefa") String codefa, @PathVariable("codefi") String codefi){
+    public ResponseEntity<Farm> addFieldToFarm(@PathVariable("codefa") String codefa,
+                                               @PathVariable("codefi") String codefi,
+                                               @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Farm farm = farmService.findByCode(codefa);
 
@@ -150,14 +251,28 @@ public class RegisterController {
 
     @GetMapping(value="/farms")
     @ResponseBody
-    public ResponseEntity<List<Farm>> getAllFarm(){
+    public ResponseEntity<List<Farm>> getAllFarm(@RequestHeader("Authorization") String token) throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
+
         List<Farm> farms = farmService.findAllFarms();
         return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
     }
 
     @PostMapping(value="/field")
     @ResponseBody
-    public ResponseEntity<Field> registerField(@RequestBody Field field){
+    public ResponseEntity<Field> registerField(@RequestBody Field field,
+                                               @RequestHeader("Authorization") String token) throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
 
         Field newField = fieldService.saveField(field);
 
@@ -169,7 +284,14 @@ public class RegisterController {
 
     @GetMapping(value="/fields")
     @ResponseBody
-    public ResponseEntity<List<Field>> getAllField(){
+    public ResponseEntity<List<Field>> getAllField(@RequestHeader("Authorization") String token) throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("Token does not belong to a registered User");
+        }
+
         List<Field> fields = fieldService.findAllFields();
         return new ResponseEntity<List<Field>>(fields, HttpStatus.OK);
     }

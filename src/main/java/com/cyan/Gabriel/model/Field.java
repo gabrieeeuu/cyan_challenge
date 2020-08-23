@@ -14,7 +14,7 @@ public class Field {
     private Double latitude;
     private Double longitude;
 
-    private Field(){
+    public Field(){
 
     }
 

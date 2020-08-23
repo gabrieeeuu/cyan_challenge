@@ -18,7 +18,7 @@ public class Harvest {
     @JoinColumn
     private List<Farm> farms;
 
-    private Harvest(){
+    public Harvest(){
 
     }
 

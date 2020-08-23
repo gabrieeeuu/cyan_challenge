@@ -17,7 +17,7 @@ public class Farm {
     @JoinColumn
     private List<Field> fields;
 
-    private Farm(){
+    public Farm(){
 
     }
 
