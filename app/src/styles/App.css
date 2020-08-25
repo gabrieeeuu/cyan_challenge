@@ -38,17 +38,18 @@
 }
 
 .container, .container-fluid {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 #containerNav {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .container-fluid>h3 {
-  margin-top: .5rem;
+    margin-top: .5rem;
 }
 
 .container-fluid>.btn{
-  margin-right: .3rem;
+    margin-right: .3rem;
+    margin-top: .3rem;
 }

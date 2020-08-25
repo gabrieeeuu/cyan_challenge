@@ -23,6 +23,14 @@ public class FieldService {
             throw new InternalError("Field already registered.");
         }
 
+        if(field.getLatitude().getClass() != Double.class){
+            throw new InternalError("Invalid format for Latitude.");
+        }
+
+        if(field.getLongitude().getClass() != Double.class){
+            throw new InternalError("Invalid format for Longitude.");
+        }
+
         return fieldDAO.save(field);
     }
 

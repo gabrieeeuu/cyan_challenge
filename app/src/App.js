@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
-import './App.css';
-import Table from './components/Table.js';
-import Home from "./components/Home.js";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import './styles/App.css';
+import Routes from "./Routes";
 
 class App extends Component {
+
     render(){
         return (
-            <Router>
-                <Switch>
-                    <Route path='/' exact={true} component={Home}/>
-                </Switch>
-            </Router>
+            <Routes/>
         )
     }
 }

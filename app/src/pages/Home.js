@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './App.css';
-import Navbar from './AppNavbar.js'
+import '../styles/App.css';
+import Navbar from '../assets/AppNavbar.js'
 import { Link } from 'react-router-dom';
 import { Button, Container } from 'reactstrap';
 
@@ -8,7 +8,7 @@ class Home extends Component{
     render() {
         return (
             <div>
-                <Navbar />
+                <Navbar/>
                 <div className="container">
                     <div className="jumbotron">
                         <h1>Home</h1>
@@ -16,12 +16,14 @@ class Home extends Component{
                     <Container fluid>
                         <Button outline color="primary" size='lg' tag={Link} to="/mills/">Mills</Button>
                         <Button outline color="primary" size='lg' tag={Link} to="/harvs/">Harvests</Button>
+                        <Button outline color="primary" size='lg' tag={Link} to="/farms/">Farms</Button>
+                        <Button outline color="primary" size='lg' tag={Link} to="/fields/">Fields</Button>
                     </Container>
                 </div>
             </div>
         );
     }
-
+    
 }
 
 export default Home;

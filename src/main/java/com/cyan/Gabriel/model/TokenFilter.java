@@ -24,8 +24,12 @@ public class TokenFilter extends GenericFilterBean {
 
         String header = req.getHeader("Authorization");
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new ServletException("Token is null or in a bad format");
+        if (header == null) {
+            throw new ServletException("Token is null 1");
+        }
+
+        if (!header.startsWith("Bearer ")){
+            throw new ServletException("Token is in a bad format 1");
         }
 
         String token = header.substring(7);
@@ -33,7 +37,7 @@ public class TokenFilter extends GenericFilterBean {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
         } catch (SignatureException e) {
-            throw new ServletException("Invalid Token");
+            throw new ServletException("Invalid Token 1");
         }
 
         chain.doFilter(request, response);
@@ -41,14 +45,14 @@ public class TokenFilter extends GenericFilterBean {
 
     public String getLogin(String auth) throws ServletException {
         if (auth == null || !auth.startsWith("Bearer ")) {
-            throw new ServletException("Token is null or in a bad format");
+            throw new ServletException("Token is null or in a bad format 2");
         }
         String token = auth.substring(7);
         String result;
         try {
             result = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
         } catch (ExpiredJwtException e) {
-            throw new ServletException("Invalid Token");
+            throw new ServletException("Invalid Token 2");
         }
         return result;
     }
