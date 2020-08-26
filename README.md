@@ -1,6 +1,6 @@
 # Fullstack Challenge
 
-[*Context](git clone https://bitbucket.org/modclima/challenge.git/readme.md)
+### [Context](https://bitbucket.org/modclima/challenge.git/readme.md)
 
 ## Back-End application
 
