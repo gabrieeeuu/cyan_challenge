@@ -31,11 +31,11 @@ public class LoginController {
         User authUser = userService.findUserByEmail(user.getEmail());
 
         if(authUser == null) {
-            throw new ServletException("Usuario nao encontrado!");
+            throw new ServletException("This Email does not belong to any registered Users.");
         }
 
         if(!authUser.getPassword().equals(user.getPassword())) {
-            throw new ServletException("Senha invalida!");
+            throw new ServletException("Wrong Password.");
         }
 
         String token = Jwts.builder()

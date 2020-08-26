@@ -1,20 +1,25 @@
 package com.cyan.Gabriel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 import java.util.List;
 
+@Table
 @Entity
 public class Harvest {
 
     @Id
-    private String code;
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column
+    private long id;
 
+    @Column
     private String start;
+
+    @Column
     private String end;
 
-    @OneToMany
+    @OneToMany(targetEntity = Farm.class)
     @JoinColumn
     private List<Farm> farms;
 
@@ -22,14 +27,11 @@ public class Harvest {
 
     }
 
-    public Harvest(@JsonProperty("code") String code,
-                   @JsonProperty("start") String start,
+    public Harvest(@JsonProperty("start") String start,
                    @JsonProperty("end") String end,
                    @JsonProperty("farms") List<Farm> farms){
-        this.code = code;
         this.start = start;
         this.end = end;
-
         this.farms = farms;
     }
 
@@ -42,8 +44,8 @@ public class Harvest {
         return this;
     }
 
-    public String getCode() {
-        return code;
+    public long getId() {
+        return this.id;
     }
 
     public String getEnd() {

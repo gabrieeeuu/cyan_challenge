@@ -20,7 +20,7 @@ public class FarmService {
 
     public Farm saveFarm(Farm farm) {
 
-        if(farmDAO.findByCode(farm.getCode()) != null){
+        if(farmDAO.findByName(farm.getName()) != null){
             throw new InternalError("Farm already registered.");
         }
 
@@ -34,11 +34,15 @@ public class FarmService {
         return farmDAO.save(newFarm);
     }
 
-    public Farm findByCode(String code){
-        return farmDAO.findByCode(code);
+    public Farm findById(long id){
+        return farmDAO.findById(id);
     }
 
     public List<Farm> findAllFarms(){
         return farmDAO.findAll();
+    }
+
+    public void deleteById(long id){
+        farmDAO.deleteById(id);
     }
 }

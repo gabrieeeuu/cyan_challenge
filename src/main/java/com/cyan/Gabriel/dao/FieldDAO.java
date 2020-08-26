@@ -7,11 +7,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FieldDAO extends JpaRepository<Field, String> {
+public interface FieldDAO extends JpaRepository<Field, Long> {
 
     Field save(Field field);
 
-    Field findByCode(String code);
+    Field findById(long id);
+
+    Field findByLatitudeAndLongitude(Double lat, Double log);
 
     List<Field> findAll();
+
+    void deleteById(long id);
 }

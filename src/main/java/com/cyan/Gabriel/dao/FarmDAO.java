@@ -7,11 +7,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FarmDAO extends JpaRepository<Farm, String> {
+public interface FarmDAO extends JpaRepository<Farm, Long> {
 
     Farm save(Farm farm);
 
-    Farm findByCode(String code);
+    Farm findById(long id);
+
+    Farm findByName(String name);
 
     List<Farm> findAll();
+
+    void deleteById(long id);
 }

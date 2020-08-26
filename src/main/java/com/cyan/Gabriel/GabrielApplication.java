@@ -17,6 +17,7 @@ public class GabrielApplication {
 		FilterRegistrationBean filterRbUser = new FilterRegistrationBean();
 		filterRbUser.setFilter(new TokenFilter());
 
+		filterRbUser.addUrlPatterns("/api/auth/user");
 		filterRbUser.addUrlPatterns("/api/mill/*");
 		filterRbUser.addUrlPatterns("/api/mills");
 		filterRbUser.addUrlPatterns("/api/harv/*");
@@ -33,6 +34,9 @@ public class GabrielApplication {
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));

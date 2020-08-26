@@ -5,11 +5,8 @@ import com.cyan.Gabriel.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.ServletException;
 import java.util.List;
@@ -35,13 +32,6 @@ public class RegisterController {
         this.fieldService = fieldService;
     }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
-    public Greeting greeting(HelloMessage message) throws Exception {
-        Thread.sleep(1000); // simulated delay
-        return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
-    }
-
     @PostMapping(value="/user")
     @ResponseBody
     public ResponseEntity<User> registerUser(@RequestBody User user){
@@ -49,13 +39,13 @@ public class RegisterController {
         User newUser = userService.saveUser(user);
 
         if (newUser == null){
-            throw new InternalError ("Something went wrong. User is Null.");
+            throw new InternalError ("User couldn't be registered.");
         }
 
-        return new ResponseEntity<User>(newUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
-    @GetMapping(value="/user")
+    @GetMapping(value="/auth/user")
     @ResponseBody
     public ResponseEntity<Response> getUserName(@RequestHeader("Authorization") String token) 
             throws ServletException {
@@ -63,14 +53,14 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         User authUser = userService.findUserByEmail(userEmail);
 
         Response response = new Response(authUser.getName());
 
-        return new ResponseEntity<Response>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     private class Response {
@@ -94,50 +84,50 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Mill newMill = millService.saveMill(mill);
 
         if (newMill == null){
-            throw new InternalError ("Something went wrong. Mill is Null.");
+            throw new InternalError ("Mill couldn't be registered.");
         }
 
-        return new ResponseEntity<Mill>(newMill, HttpStatus.CREATED);
+        return new ResponseEntity<>(newMill, HttpStatus.CREATED);
     }
 
-    @PutMapping(value="/mill/harv/{name}/{code}")
+    @PutMapping(value="/mill/harv/{name}/{id}")
     @ResponseBody
     public ResponseEntity<Mill> addHarvestToMill(@PathVariable("name") String millName,
-                                                 @PathVariable("code") String harvestCode,
+                                                 @PathVariable("id") long harvestId,
                                                  @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Mill mill = millService.findByName(millName);
 
         if (mill == null){
-            throw new InternalError ("Something went wrong. This Mill is not Registered.");
+            throw new InternalError ("This Mill is not Registered.");
         }
 
-        Harvest harvest = harvestService.findByCode(harvestCode);
+        Harvest harvest = harvestService.findById(harvestId);
 
         if (harvest == null){
-            throw new InternalError ("Something went wrong. This Harvest is not Registered.");
+            throw new InternalError ("This Harvest is not Registered.");
         }
 
         Mill newMill = millService.addHarvest(mill, harvest);
 
         if (newMill == null){
-            throw new InternalError ("Something went wrong. Mill is Null.");
+            throw new InternalError ("Mill couldn't be updated.");
         }
 
-        return new ResponseEntity<Mill>(newMill, HttpStatus.OK);
+        return new ResponseEntity<>(newMill, HttpStatus.OK);
     }
 
     @GetMapping(value="/mills")
@@ -148,11 +138,11 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         List<Mill> mills = millService.findAllMills();
-        return new ResponseEntity<List<Mill>>(mills, HttpStatus.OK);
+        return new ResponseEntity<>(mills, HttpStatus.OK);
     }
 
     @GetMapping(value="/mill/{name}")
@@ -164,16 +154,16 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Mill mill = millService.findByName(name);
 
         if (mill == null){
-            throw new InternalError ("Something went wrong. This Mill is not registered.");
+            throw new InternalError ("This Mill is not registered.");
         }
 
-        return new ResponseEntity<Mill>(mill, HttpStatus.FOUND);
+        return new ResponseEntity<>(mill, HttpStatus.FOUND);
     }
 
     @DeleteMapping(value="/mill/{name}")
@@ -185,7 +175,7 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         millService.deleteMill(name);
@@ -200,40 +190,48 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Harvest newHarvest = harvestService.saveHarvest(harvest);
 
         if (newHarvest == null){
-            throw new InternalError ("Something went wrong. Harvest is Null.");
+            throw new InternalError ("Harvest couldn't be registered.");
         }
-        return new ResponseEntity<Harvest>(newHarvest, HttpStatus.CREATED);
+        return new ResponseEntity<>(newHarvest, HttpStatus.CREATED);
     }
 
-    @PutMapping(value="/harv/farm/{codeh}/{codef}")
+    @PutMapping(value="/harv/farm/{idH}/{idF}")
     @ResponseBody
-    public ResponseEntity<Harvest> addFarmToHarvest(@PathVariable("codeh") String codeh,
-                                                    @PathVariable("codef") String condef,
+    public ResponseEntity<Harvest> addFarmToHarvest(@PathVariable("idH") long idH,
+                                                    @PathVariable("idF") long idF,
                                                     @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
-        Harvest harvest = harvestService.findByCode(codeh);
+        Harvest harvest = harvestService.findById(idH);
 
-        Farm farm = farmService.findByCode(condef);
+        if(harvest == null){
+            throw new InternalError("This Harvest is not Registered.");
+        }
+
+        Farm farm = farmService.findById(idF);
+
+        if(farm == null){
+            throw new InternalError("This Farm is not Registered.");
+        }
 
         Harvest newHarvest = harvestService.addFarm(harvest, farm);
 
         if (newHarvest == null){
-            throw new InternalError ("Something went wrong. Harvest is Null.");
+            throw new InternalError ("Harvest couldn't be registered.");
         }
-        return new ResponseEntity<Harvest>(newHarvest, HttpStatus.CREATED);
+        return new ResponseEntity<>(newHarvest, HttpStatus.CREATED);
 
     }
 
@@ -245,32 +243,47 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         List<Harvest> harvests = harvestService.findAllHarvests();
-        return new ResponseEntity<List<Harvest>>(harvests, HttpStatus.OK);
+        return new ResponseEntity<>(harvests, HttpStatus.OK);
     }
 
-    @GetMapping(value="/harv/{code}")
+    @GetMapping(value="/harv/{id}")
     @ResponseBody
-    public ResponseEntity<Harvest> findHarvByCode(@PathVariable("code") String code,
+    public ResponseEntity<Harvest> findHarvById(@PathVariable("id") Long id,
                                                @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
-        Harvest harv = harvestService.findByCode(code);
+        Harvest harv = harvestService.findById(id);
 
         if (harv == null){
-            throw new InternalError ("Something went wrong. This Harvest is not registered.");
+            throw new InternalError ("This Harvest is not registered.");
         }
 
-        return new ResponseEntity<Harvest>(harv, HttpStatus.FOUND);
+        return new ResponseEntity<>(harv, HttpStatus.FOUND);
+    }
+
+    @DeleteMapping(value="/harv/{id}")
+    @Transactional
+    public void deleteHarv(@PathVariable("id") Long id,
+                           @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
+        }
+
+        harvestService.deleteHarv(id);
     }
 
     @PostMapping(value="/farm")
@@ -282,40 +295,48 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Farm newFarm = farmService.saveFarm(farm);
 
         if (newFarm == null){
-            throw new InternalError ("Something went wrong. Farm is Null.");
+            throw new InternalError ("Farm couldn't be registered.");
         }
-        return new ResponseEntity<Farm>(newFarm, HttpStatus.CREATED);
+        return new ResponseEntity<>(newFarm, HttpStatus.CREATED);
     }
 
-    @PutMapping(value="/farm/field/{codefa}/{codefi}")
+    @PutMapping(value="/farm/field/{idFarm}/{idField}")
     @ResponseBody
-    public ResponseEntity<Farm> addFieldToFarm(@PathVariable("codefa") String codefa,
-                                               @PathVariable("codefi") String codefi,
+    public ResponseEntity<Farm> addFieldToFarm(@PathVariable("idFarm") long idFarm,
+                                               @PathVariable("idField") long idField,
                                                @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
-        Farm farm = farmService.findByCode(codefa);
+        Farm farm = farmService.findById(idFarm);
 
-        Field field = fieldService.findByCode(codefi);
+        if(farm == null){
+            throw new InternalError("This Farm is not Registered.");
+        }
+
+        Field field = fieldService.findById(idField);
+
+        if(field == null){
+            throw new InternalError("This Field is not Registered.");
+        }
 
         Farm newFarm = farmService.addField(farm, field);
 
         if (newFarm == null){
-            throw new InternalError ("Something went wrong. Farm is Null.");
+            throw new InternalError ("Farm couldn't be registered.");
         }
-        return new ResponseEntity<Farm>(newFarm, HttpStatus.CREATED);
+        return new ResponseEntity<>(newFarm, HttpStatus.CREATED);
     }
 
     @GetMapping(value="/farms")
@@ -325,32 +346,47 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         List<Farm> farms = farmService.findAllFarms();
-        return new ResponseEntity<List<Farm>>(farms, HttpStatus.OK);
+        return new ResponseEntity<>(farms, HttpStatus.OK);
     }
 
-    @GetMapping(value="/farm/{code}")
+    @GetMapping(value="/farm/{id}")
     @ResponseBody
-    public ResponseEntity<Farm> findFarmByCode(@PathVariable("code") String code,
+    public ResponseEntity<Farm> findFarmByCode(@PathVariable("id") long id,
                                                   @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
-        Farm farm = farmService.findByCode(code);
+        Farm farm = farmService.findById(id);
 
         if (farm == null){
-            throw new InternalError ("Something went wrong. This Farm is not registered.");
+            throw new InternalError ("This Farm is not registered.");
         }
 
-        return new ResponseEntity<Farm>(farm, HttpStatus.FOUND);
+        return new ResponseEntity<>(farm, HttpStatus.FOUND);
+    }
+
+    @DeleteMapping(value="/farm/{id}")
+    @Transactional
+    public void deleteFarm(@PathVariable("id") Long id,
+                           @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
+        }
+
+        farmService.deleteById(id);
     }
 
     @PostMapping(value="/field")
@@ -361,15 +397,15 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         Field newField = fieldService.saveField(field);
 
         if (newField == null){
-            throw new InternalError ("Something went wrong. Field is Null.");
+            throw new InternalError ("Field couldn't be registered.");
         }
-        return new ResponseEntity<Field>(newField, HttpStatus.CREATED);
+        return new ResponseEntity<>(newField, HttpStatus.CREATED);
     }
 
     @GetMapping(value="/fields")
@@ -379,32 +415,47 @@ public class RegisterController {
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
         List<Field> fields = fieldService.findAllFields();
-        return new ResponseEntity<List<Field>>(fields, HttpStatus.OK);
+        return new ResponseEntity<>(fields, HttpStatus.OK);
     }
 
-    @GetMapping(value="/field/{code}")
+    @GetMapping(value="/field/{id}")
     @ResponseBody
-    public ResponseEntity<Field> findFieldByCode(@PathVariable("code") String code,
+    public ResponseEntity<Field> findFieldByCode(@PathVariable("id") long id,
                                                   @RequestHeader("Authorization") String token)
             throws ServletException {
 
         String userEmail = tokenFilter.getLogin(token);
 
         if(userService.findUserByEmail(userEmail) == null){
-            throw new InternalError("Token does not belong to a registered User");
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
         }
 
-        Field field = fieldService.findByCode(code);
+        Field field = fieldService.findById(id);
 
         if (field == null){
-            throw new InternalError ("Something went wrong. This Field is not registered.");
+            throw new InternalError ("This Field is not registered.");
         }
 
-        return new ResponseEntity<Field>(field, HttpStatus.FOUND);
+        return new ResponseEntity<>(field, HttpStatus.FOUND);
+    }
+
+    @DeleteMapping(value="/field/{id}")
+    @Transactional
+    public void deleteField(@PathVariable("id") Long id,
+                           @RequestHeader("Authorization") String token)
+            throws ServletException {
+
+        String userEmail = tokenFilter.getLogin(token);
+
+        if(userService.findUserByEmail(userEmail) == null){
+            throw new InternalError("You're not logged as a registered User. Please Logout.");
+        }
+
+        fieldService.deleteById(id);
     }
 
 }

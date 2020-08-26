@@ -5,26 +5,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import java.util.List;
 
+@Table
 @Entity
 public class Farm {
 
     @Id
-    private String code;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private long id;
 
+    @Column
     private String name;
 
-    @OneToMany
+    @OneToMany(targetEntity = Field.class)
     @JoinColumn
+    @Column
     private List<Field> fields;
 
     public Farm(){
 
     }
 
-    public Farm(@JsonProperty("code") String code,
-                @JsonProperty("name") String name,
+    public Farm(@JsonProperty("name") String name,
                 @JsonProperty("fields") List<Field> fields) {
-        this.code = code;
         this.name = name;
         this.fields = fields;
     }
@@ -38,8 +41,8 @@ public class Farm {
         return this;
     }
 
-    public String getCode() {
-        return code;
+    public long getId() {
+        return id;
     }
 
     public String getName() {

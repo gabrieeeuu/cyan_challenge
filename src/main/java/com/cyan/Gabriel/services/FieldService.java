@@ -19,26 +19,22 @@ public class FieldService {
 
     public Field saveField(Field field){
 
-        if(fieldDAO.findByCode(field.getCode()) != null) {
+        if(fieldDAO.findByLatitudeAndLongitude(field.getLatitude(), field.getLongitude()) != null) {
             throw new InternalError("Field already registered.");
-        }
-
-        if(field.getLatitude().getClass() != Double.class){
-            throw new InternalError("Invalid format for Latitude.");
-        }
-
-        if(field.getLongitude().getClass() != Double.class){
-            throw new InternalError("Invalid format for Longitude.");
         }
 
         return fieldDAO.save(field);
     }
 
-    public Field findByCode(String code){
-        return fieldDAO.findByCode(code);
+    public Field findById(long id){
+        return fieldDAO.findById(id);
     }
 
     public List<Field> findAllFields(){
         return fieldDAO.findAll();
+    }
+
+    public void deleteById(long id){
+        fieldDAO.deleteById(id);
     }
 }

@@ -21,7 +21,7 @@ public class HarvestService {
     public Harvest saveHarvest(Harvest harvest){
 
         //Validacoes
-        if(harvestDAO.findByCode(harvest.getCode()) != null){
+        if(harvestDAO.findById(harvest.getId()) != null){
             throw new InternalError("Harvest already registered.");
         }
 
@@ -35,11 +35,15 @@ public class HarvestService {
         return harvestDAO.save(newHarvest);
     }
 
-    public Harvest findByCode(String code){
-        return harvestDAO.findByCode(code);
+    public Harvest findById(long id){
+        return harvestDAO.findById(id);
     }
 
     public List<Harvest> findAllHarvests(){
         return harvestDAO.findAll();
+    }
+
+    public void deleteHarv(long id){
+        harvestDAO.deleteById(id);
     }
 }

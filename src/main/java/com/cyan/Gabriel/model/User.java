@@ -2,16 +2,23 @@ package com.cyan.Gabriel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Table
 @Entity
 public class User {
 
     @Id
+    @Column
     private String email;
 
+    @Column
     private String name;
+
+    @Column
     private String password;
 
     public User(){

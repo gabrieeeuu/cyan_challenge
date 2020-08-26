@@ -2,20 +2,20 @@ package com.cyan.Gabriel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
+@Table
 @Entity
 public class Mill {
 
     @Id
+    @Column
     private String name;
 
-    @OneToMany
+    @OneToMany(targetEntity = Harvest.class)
     @JoinColumn
+    @Column
     private List<Harvest> harvests;
 
     public Mill(){

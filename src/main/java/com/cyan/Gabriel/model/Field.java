@@ -2,45 +2,49 @@ package com.cyan.Gabriel.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
+
+@Table
 @Entity
 public class Field {
 
     @Id
-    private String code;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private long id;
 
+    @Column
     private Double latitude;
+
+    @Column
     private Double longitude;
 
     public Field(){
 
     }
 
-    public Field(@JsonProperty("code") String code,
-                 @JsonProperty("latitude") Double latitude,
+    public Field(@JsonProperty("latitude") Double latitude,
                  @JsonProperty("longitude") Double longitude){
-        this.code = code;
-        if(latitude>100 || latitude<-100){
+        if(latitude>90 || latitude<-90){
             throw new InternalError("Invalid Latitude.");
         }
         this.latitude = latitude;
-        if(longitude>100 || longitude<-100){
+        if(longitude>180 || longitude<-180){
             throw new InternalError("Invalid Longitude.");
         }
-        this.longitude = longitude;
+        this.longitude=longitude;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public Double getLongitude() {
-        return longitude;
+    public long getId() {
+        return id;
     }
 
     public Double getLatitude() {
         return latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
     }
 }

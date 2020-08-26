@@ -7,11 +7,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HarvestDAO extends JpaRepository<Harvest, String> {
+public interface HarvestDAO extends JpaRepository<Harvest, Long> {
 
     Harvest save(Harvest harvest);
 
-    Harvest findByCode(String code);
+    Harvest findById(long id);
 
     List<Harvest> findAll();
+
+    void deleteById(Long id);
 }
